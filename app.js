@@ -1,7 +1,11 @@
 const express = require('express');
-const morgan = require('morgan')
+const morgan = require('morgan');
+const helmet = require('helmet');
 
 const app = express();
+
+// Use Helmet!
+app.use(helmet());
 
 app.set('view engine', 'ejs');
 app.use(morgan('dev'))
@@ -151,9 +155,7 @@ app.get('/:slug', (req, res) => {
 });
 
 app.use((req, res) => {
-  return res.status(200).render('./errors/404');
-
-  res.status(404).json({ error: 'Page Not Found' });
+  return res.status(404).render('./errors/404');
 });
 
 const PORT = 3000;
