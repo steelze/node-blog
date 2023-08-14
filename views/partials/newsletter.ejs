@@ -1,0 +1,31 @@
+<div class="site-instagram">
+  <div class="action">
+    <a class="btn btn-light" href="javascript:void(0)">
+      Follow us @ Instagram
+    </a>
+  </div>
+  <div class="row g-0">
+    <div class="col-sm-6">
+      <div class="row g-0">
+        <% for( let index = 1; index < 5; index++ ) { %>
+          <div class="col-3">
+            <a class="photo" href="javascript:void(0)">
+              <img class="img-fluid" src="/img/instagram/<%= index %>.jpg" alt="" />
+            </a>
+          </div>
+        <% } %>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="row g-0">
+        <% for( let index = 5; index < 9; index++ ) { %>
+          <div class="col-3">
+            <a class="photo" href="javascript:void(0)">
+              <img class="img-fluid" src="/img/instagram/<%= index %>.jpg" alt="" />
+            </a>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>

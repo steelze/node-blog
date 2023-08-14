@@ -1,0 +1,31 @@
+<aside class="sidebar">
+  <div class="card mb-4">
+    <div class="card-body">
+      <h4 class="card-title">About</h4>
+      <p class="card-text">Welcome to our blog, where we explore a world of ideas and insights! Dive into a collection of thought-provoking articles spanning technology, culture, and more.</p>
+    </div>
+  </div>
+</aside>
+
+<aside class="sidebar sidebar-sticky">
+  <div class="card mb-4">
+    <div class="card-body">
+      <h4 class="card-title">Categories</h4>
+      <% ['Journey', 'Work', 'Lifestype', 'Photography', 'Food & Drinks'].forEach(category => { %>
+        <a class="btn btn-light btn-sm mb-1" href="/categories/<%= category %>"><%= category %></a>
+      <% }) %>
+    </div>
+  </div>
+  <div class="card mb-4">
+    <div class="card-body">
+      <h4 class="card-title">Popular stories</h4>
+      <% for( let index = 0; index < 2; index++ ) { %>
+        <a href="javascript:void(0)" class="d-inline-block mt-3">
+          <h4 class="h6">The blind man</h4>
+          <img class="card-img" src="img/articles/2.jpg" alt="" />
+        </a>
+        <time class="timeago" datetime="2021-09-03 20:00">3 october 2021</time> in Lifestyle
+      <% } %>
+    </div>
+  </div>
+</aside>
