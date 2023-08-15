@@ -8,7 +8,7 @@
       <div class="col-md-9">
         <div class="text-center">
           <span class="text-muted">Category:</span>
-          <h2>Lifestyle</h2>
+          <h2><%= category %></h2>
           <hr />
         </div>
 
@@ -18,14 +18,14 @@
               <article class="card mb-4">
                 <header class="card-header">
                   <div class="card-meta">
-                    <a href="/blogs/<%= post.id %>"><time class="timeago" datetime="2021-09-26 20:00">26 october 2021</time></a> in <a href="javascript:void(0)">Journey</a>
+                    <a href="/blogs/<%= post.id %>"><time class="timeago" datetime="<%= post.created_at %>"><%= post.created_at %></time></a> in <a href="/categories/<%= post.category %>"><%= post.category %></a>
                   </div>
                   <a href="/<%= post.slug %>">
                     <h4 class="card-title"><%= post.title %></h4>
                   </a>
                 </header>
                 <a href="/<%= post.slug %>">
-                  <img class="card-img" src="<%= post.cover_image %>" alt="" />
+                  <img class="card-img cover-img" src="<%= post.cover_image %>" alt="" />
                 </a>
                 <div class="card-body">
                   <p class="card-text"><%= post.snippet %></p>

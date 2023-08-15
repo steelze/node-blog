@@ -16,16 +16,18 @@
       <% }) %>
     </div>
   </div>
-  <div class="card mb-4">
-    <div class="card-body">
-      <h4 class="card-title">Popular stories</h4>
-      <% for( let index = 0; index < 2; index++ ) { %>
-        <a href="javascript:void(0)" class="d-inline-block mt-3">
-          <h4 class="h6">The blind man</h4>
-          <img class="card-img" src="img/articles/2.jpg" alt="" />
-        </a>
-        <time class="timeago" datetime="2021-09-03 20:00">3 october 2021</time> in Lifestyle
-      <% } %>
+  <% if (popularPosts.length) { %>
+    <div class="card mb-4">
+      <div class="card-body">
+        <h4 class="card-title">Popular stories</h4>
+        <% popularPosts.forEach(post => { %>
+          <a href="/<%= post.slug %>" class="d-inline-block mt-3">
+            <h4 class="h6"><%= post.title %></h4>
+            <img class="card-img" src="<%= post.cover_image %>" alt="" />
+          </a>
+          <time class="timeago" datetime="<%= post.created_at %>"><%= post.created_at %></time> in <%= post.category %>
+        <% }) %>
+      </div>
     </div>
-  </div>
+  <% } %>
 </aside>

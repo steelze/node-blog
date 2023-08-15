@@ -1,13 +1,5 @@
 <%- include('./partials/header') %>
 
-<style>
-  .card-img {
-  width: 100%; /* Set the width to 100% of the parent container */
-  max-height: 200px; /* Adjust the desired height */
-  object-fit: cover; /* Maintain aspect ratio while covering the container */
-}
-</style>
-
 <!-- MAIN BODY -->
 <main class="main pt-4">
   <div class="container">
@@ -20,14 +12,14 @@
               <article class="card mb-4">
                 <header class="card-header">
                   <div class="card-meta">
-                    <a href="/blogs/<%= post.id %>"><time class="timeago" datetime="2021-09-26 20:00">26 october 2021</time></a> in <a href="javascript:void(0)">Journey</a>
+                    <a href="/<%= post.slug %>"><time class="timeago" datetime="<%= post.created_at %>"><%= post.created_at %></time></a> in <a href="javascript:void(0)"><%= post.category %></a>
                   </div>
                   <a href="/<%= post.slug %>">
                     <h4 class="card-title"><%= post.title %></h4>
                   </a>
                 </header>
                 <a href="/<%= post.slug %>">
-                  <img class="card-img" src="<%= post.cover_image %>" alt="" />
+                  <img class="card-img cover-img" src="<%= post.cover_image %>" alt="" />
                 </a>
                 <div class="card-body">
                   <p class="card-text"><%= post.snippet %></p>
