@@ -4,7 +4,6 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 
 const ArrayPaginator = require('./utils/ArrayPaginator');
-const UrlHelper = require('./utils/UrlHelper');
 
 const app = express();
 
@@ -24,14 +23,20 @@ app.get('/', (req, res) => {
       return res.status(500).json({ 'error': 'An error occured', 'data': err });
     }
 
-    const posts = JSON.parse(data);
+    let posts = JSON.parse(data);
     const pageNumber = parseInt(req.query.page || 1);
+    const q = (req.query.q || '').trim();
     const limit = 6;
+
+    if (q) {
+      posts = posts.filter((post) => post.title.includes(q));
+    }
+
     const { content, meta } = ArrayPaginator.createPaginatedDataFromArray(req, posts, pageNumber, limit);
 
     const sortedPosts = posts.sort((a, b) => b.read_count - a.read_count);
     const popularPosts = sortedPosts.slice(0, 3);
-    return res.status(200).render('home', { posts: content, popularPosts, meta });
+    return res.status(200).render('home', { posts: content, popularPosts, meta, q });
   });
 });
 

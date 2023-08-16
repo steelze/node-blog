@@ -23,9 +23,7 @@ function createPaginatedDataFromArray(req, data, page = 1, limit = 10) {
 
   const nextPageUrl = (page < lastPage) ? new URL(fullUrl) : null;
   if (nextPageUrl) {
-    console.log(nextPageUrl);
     nextPageUrl.searchParams.set('page', page + 1);
-    console.log(nextPageUrl);
   }
 
   const meta = {
