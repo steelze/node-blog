@@ -3,6 +3,9 @@ const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
 
+const ArrayPaginator = require('./utils/ArrayPaginator');
+const UrlHelper = require('./utils/UrlHelper');
+
 const app = express();
 
 // Use Helmet!
@@ -22,9 +25,13 @@ app.get('/', (req, res) => {
     }
 
     const posts = JSON.parse(data);
+    const pageNumber = parseInt(req.query.page || 1);
+    const limit = 6;
+    const { content, meta } = ArrayPaginator.createPaginatedDataFromArray(req, posts, pageNumber, limit);
+
     const sortedPosts = posts.sort((a, b) => b.read_count - a.read_count);
     const popularPosts = sortedPosts.slice(0, 3);
-    return res.status(200).render('home', { posts, popularPosts });
+    return res.status(200).render('home', { posts: content, popularPosts, meta });
   });
 });
 
@@ -44,10 +51,15 @@ app.get('/categories/:category', (req, res) => {
     }
     const { category } = req.params;
     const posts = JSON.parse(data);
+    const pageNumber = parseInt(req.query.page || 1);
+    const limit = 6;
+
     const categoryPosts = posts.filter((post) => post.category.toLowerCase() == category.toLowerCase());
+    const { content, meta } = ArrayPaginator.createPaginatedDataFromArray(req, categoryPosts, pageNumber, limit);
+
     const sortedPosts = posts.sort((a, b) => b.read_count - a.read_count);
     const popularPosts = sortedPosts.slice(0, 3);
-    return res.status(200).render('./category-posts', { posts: categoryPosts, popularPosts, category });
+    return res.status(200).render('./category-posts', { posts: content, popularPosts, category, meta });
   });
 });
 

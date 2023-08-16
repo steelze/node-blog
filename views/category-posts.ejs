@@ -34,6 +34,28 @@
             </div>
           <% }) %>
         </div>
+
+        <nav aria-label="Page navigation example">
+          <ul class="pagination justify-content-center">
+            <li class="page-item">
+              <a class="page-link" href="<%= meta.prev_page_url || 'javascript:void(0)' %>" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <% const metaPathUrl = new URL(meta.path) %>
+            <% for( let index = 1; index <= meta.last_page; index++ ) { %>
+              <li class="page-item <%= (meta.current_page == index) ? 'active' : '' %>">
+                <% metaPathUrl.searchParams.set('page', index) %>
+                <a class="page-link" href="<%= (meta.current_page != index) ? metaPathUrl.toString() : 'javascript:void(0)' %>"><%= index %></a>
+              </li>
+            <% } %>
+            <li class="page-item">
+              <a class="page-link" href="<%= meta.next_page_url || 'javascript:void(0)' %>" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
       </div>
 
       <div class="col-md-3 ms-auto">
