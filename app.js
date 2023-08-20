@@ -2,19 +2,47 @@ const fs = require('fs');
 const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
+const session = require('express-session')
+const flash = require('connect-flash');
+const { body, validationResult } = require('express-validator');
 
 const ArrayPaginator = require('./utils/ArrayPaginator');
+const ContactSchema = require('./validators/schemas/ContactSchema');
 
 const app = express();
 
 // Use Helmet!
 app.use(helmet());
 
-app.set('view engine', 'ejs');
-app.use(morgan('dev'))
-app.use(express.static('assets'))
+app.use(express.urlencoded({ extended: true }))
 
+app.set('view engine', 'ejs');
+app.use(morgan('dev'));
+app.use(express.static('assets'));
+
+app.use(session({
+  secret: 'yoursecret',
+  resave: true,
+  saveUninitialized: true,
+  cookie: { maxAge: 24 * 60 * 60 * 1000 },
+}));
+
+app.use(flash());
+
+app.use(function(req, res, next) {
+  res.locals.success = req.flash('success');
+  res.locals.error = req.flash('error');
+  res.locals.validation_errors = req.flash('validation_errors');
+  res.locals.old_validation_data = req.flash('old_validation_data');
+  next();
+});
+
+const dataStorePath = './database';
 const postsDataStorePath = './database/posts.json';
+
+if (!fs.existsSync(`${dataStorePath}/contact.json`)) {
+  fs.writeFileSync(`${dataStorePath}/contact.json`, JSON.stringify([]));
+}
 
 app.get('/', (req, res) => {
   fs.readFile(postsDataStorePath, 'utf8', (err, data) => {
@@ -46,6 +74,45 @@ app.get('/about', (req, res) => {
 
 app.get('/contact', (req, res) => {
   return res.status(200).render('./contact');
+});
+
+app.post('/contact', ContactSchema, (req, res) => {
+  const result = validationResult(req);
+  if (!result.isEmpty()) {
+    const groupedErrors = {};
+
+    for (const error of result.array()) {
+      if (!groupedErrors[error.path]) {
+        groupedErrors[error.path] = [];
+      }
+      groupedErrors[error.path].push(error);
+    }
+
+    req.flash('validation_errors', groupedErrors);
+    req.flash('old_validation_data', req.body);
+    return res.redirect('/contact');
+  }
+
+  fs.readFile(`${dataStorePath}/contact.json`, 'utf8', (err, data) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ 'error': 'An error occured', 'data': err });
+    }
+    let submissions = JSON.parse(data);
+    submissions.push({
+      name: req.body.name,
+      email: req.body.email,
+      message: req.body.message,
+    })
+    fs.writeFile(`${dataStorePath}/contact.json`, JSON.stringify(submissions), (err, data) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({ 'error': 'An error occured', 'data': err });
+      }
+      req.flash('success', 'Contact form submitted successfully');
+      return res.redirect('/contact');
+    });
+  });
 });
 
 app.get('/categories/:category', (req, res) => {

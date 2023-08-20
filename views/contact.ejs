@@ -22,30 +22,49 @@
 
             <p>Thank you for considering reaching out to us. We look forward to
 
-            <form>
+            <% if (typeof success !== 'undefined' && success !== null && success.length > 0) { %>
+              <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <%= success %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            <% } %>
+
+            <% if (validation_errors.length > 0) { %>
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                Ooops! Validation Error
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            <% } %>
+
+            <% const contactErrors = (validation_errors.length > 0) ? validation_errors[0] : {}; %>
+            <% const oldContactFormData = (old_validation_data.length > 0) ? old_validation_data[0] : {}; %>
+            <form method="POST" action="/contact">
               <div class="mb-3">
                 <label class="form-label" for="name">Name</label>
-                <input type="text" class="form-control" id="name" placeholder="Name">
-              </div>
-              <div class="mb-3">
-                <label class="form-label" for="company">Company</label>
-                <input type="text" class="form-control" id="company" placeholder="Company">
+                <input type="text" class="form-control <%= (contactErrors.hasOwnProperty('name')) ? 'is-invalid' : '' %>" id="name" placeholder="Name" name="name" value="<%= (oldContactFormData.hasOwnProperty('name')) ? oldContactFormData.name : '' %>">
+                <% if (contactErrors.hasOwnProperty('name')) { %>
+                  <span class="invalid-feedback"><%= contactErrors.name[0].msg %></span>
+                <% } %>
               </div>
               <div class="mb-3">
                 <label class="form-label" for="email">Email</label>
-                <input type="email" class="form-control" id="email" placeholder="Email address">
+                <input type="email" class="form-control <%= (contactErrors.hasOwnProperty('email')) ? 'is-invalid' : '' %>" id="email" placeholder="Email address" name="email" value="<%= (oldContactFormData.hasOwnProperty('email')) ? oldContactFormData.email : '' %>">
+                <% if (contactErrors.hasOwnProperty('email')) { %>
+                  <span class="invalid-feedback"><%= contactErrors.email[0].msg %></span>
+                <% } %>
               </div>
               <div class="mb-3">
                 <label class="form-label" for="question">Message</label>
-                <textarea class="form-control" id="message" rows="4" placeholder="Message"></textarea>
+                <textarea class="form-control <%= (contactErrors.hasOwnProperty('message')) ? 'is-invalid' : '' %>" id="message" rows="4" placeholder="Message" name="message"><%= (oldContactFormData.hasOwnProperty('message')) ? oldContactFormData.message : '' %></textarea>
+                <% if (contactErrors.hasOwnProperty('message')) { %>
+                  <span class="invalid-feedback"><%= contactErrors.message[0].msg %></span>
+                <% } %>
               </div>
 
-              <button type="button" class="btn btn-success">Send</button>
+              <button type="submit" class="btn btn-success">Send</button>
             </form>
-
           </div>
-        </article><!-- /.card -->
-
+        </article>
       </div>
     </div>
   </div>
