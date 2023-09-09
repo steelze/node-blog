@@ -28,7 +28,7 @@
 
             <% const contactErrors = (validation_errors.length > 0) ? validation_errors[0] : {}; %>
             <% const oldContactFormData = (old_validation_data.length > 0) ? old_validation_data[0] : {}; %>
-            <form method="POST" action="/contact">
+            <form method="POST" action="/register">
               <div class="mb-3">
                 <label class="form-label" for="name">Name</label>
                 <input type="text" class="form-control <%= (contactErrors.hasOwnProperty('name')) ? 'is-invalid' : '' %>" id="name" placeholder="Name" name="name" value="<%= (oldContactFormData.hasOwnProperty('name')) ? oldContactFormData.name : '' %>">
@@ -43,11 +43,20 @@
                   <span class="invalid-feedback"><%= contactErrors.email[0].msg %></span>
                 <% } %>
               </div>
+
               <div class="mb-3">
                 <label class="form-label" for="password">Password</label>
-                <input type="password" class="form-control <%= (contactErrors.hasOwnProperty('password')) ? 'is-invalid' : '' %>" id="password" placeholder="Password" name="password" value="<%= (oldContactFormData.hasOwnProperty('password')) ? oldContactFormData.password : '' %>">
+                <input type="password" class="form-control <%= (contactErrors.hasOwnProperty('password')) ? 'is-invalid' : '' %>" id="password" placeholder="Password" name="password">
                 <% if (contactErrors.hasOwnProperty('password')) { %>
                   <span class="invalid-feedback"><%= contactErrors.password[0].msg %></span>
+                <% } %>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label" for="password_confirmation">Password Confirmation</label>
+                <input type="password" class="form-control <%= (contactErrors.hasOwnProperty('password_confirmation')) ? 'is-invalid' : '' %>" id="password_confirmation" placeholder="Confirm Password" name="password_confirmation">
+                <% if (contactErrors.hasOwnProperty('password_confirmation')) { %>
+                  <span class="invalid-feedback"><%= contactErrors.password_confirmation[0].msg %></span>
                 <% } %>
               </div>
 

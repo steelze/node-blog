@@ -5,9 +5,13 @@ const helmet = require('helmet');
 const session = require('express-session')
 const flash = require('connect-flash');
 const { body, validationResult } = require('express-validator');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 const ArrayPaginator = require('./utils/ArrayPaginator');
 const ContactSchema = require('./validators/schemas/ContactSchema');
+const RegisterSchema = require('./validators/schemas/RegisterSchema');
+const User = require('./Model/User');
 
 const app = express();
 
@@ -39,9 +43,14 @@ app.use(function(req, res, next) {
 
 const dataStorePath = './database';
 const postsDataStorePath = './database/posts.json';
+const usersDataStorePath = './database/users.json';
 
 if (!fs.existsSync(`${dataStorePath}/contact.json`)) {
   fs.writeFileSync(`${dataStorePath}/contact.json`, JSON.stringify([]));
+}
+
+if (!fs.existsSync(usersDataStorePath)) {
+  fs.writeFileSync(usersDataStorePath, JSON.stringify([]));
 }
 
 app.get('/', (req, res) => {
@@ -122,6 +131,43 @@ app.get('/login', (req, res) => {
 app.get('/register', (req, res) => {
   return res.status(200).render('./auth/register');
 });
+
+app.post('/register', RegisterSchema, (req, res) => {
+  const result = validationResult(req);
+  if (!result.isEmpty()) {
+    const groupedErrors = {};
+
+    for (const error of result.array()) {
+      if (!groupedErrors[error.path]) {
+        groupedErrors[error.path] = [];
+      }
+      groupedErrors[error.path].push(error);
+    }
+
+    req.flash('validation_errors', groupedErrors);
+    req.flash('old_validation_data', req.body);
+    return res.redirect('/register');
+  }
+
+
+  bcrypt.hash(req.body.password, saltRounds, async function(err, hash) {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ 'error': 'An error occured', 'data': err });
+    }
+
+    const model = new User();
+    const user = await model.create({
+      name: req.body.name,
+      email: req.body.email,
+      password: hash,
+    });
+
+    req.flash('success', 'Account created successfully');
+    return res.redirect('/login');
+  });
+});
+
 
 app.get('/categories/:category', (req, res) => {
   fs.readFile(postsDataStorePath, 'utf8', (err, data) => {
