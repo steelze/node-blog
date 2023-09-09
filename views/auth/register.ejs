@@ -1,0 +1,67 @@
+<%- include('../partials/header') %>
+
+<!-- MAIN BODY -->
+<main class="main pt-4">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 mx-auto">
+
+        <article class="card mb-4">
+          <header class="card-header text-center">
+            <h1 class="card-title">Register</h1>
+          </header>
+          <div class="card-body">
+
+            <% if (typeof success !== 'undefined' && success !== null && success.length > 0) { %>
+              <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <%= success %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            <% } %>
+
+            <% if (validation_errors.length > 0) { %>
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                Ooops! Validation Error
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            <% } %>
+
+            <% const contactErrors = (validation_errors.length > 0) ? validation_errors[0] : {}; %>
+            <% const oldContactFormData = (old_validation_data.length > 0) ? old_validation_data[0] : {}; %>
+            <form method="POST" action="/contact">
+              <div class="mb-3">
+                <label class="form-label" for="name">Name</label>
+                <input type="text" class="form-control <%= (contactErrors.hasOwnProperty('name')) ? 'is-invalid' : '' %>" id="name" placeholder="Name" name="name" value="<%= (oldContactFormData.hasOwnProperty('name')) ? oldContactFormData.name : '' %>">
+                <% if (contactErrors.hasOwnProperty('name')) { %>
+                  <span class="invalid-feedback"><%= contactErrors.name[0].msg %></span>
+                <% } %>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="email">Email</label>
+                <input type="email" class="form-control <%= (contactErrors.hasOwnProperty('email')) ? 'is-invalid' : '' %>" id="email" placeholder="Email address" name="email" value="<%= (oldContactFormData.hasOwnProperty('email')) ? oldContactFormData.email : '' %>">
+                <% if (contactErrors.hasOwnProperty('email')) { %>
+                  <span class="invalid-feedback"><%= contactErrors.email[0].msg %></span>
+                <% } %>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" class="form-control <%= (contactErrors.hasOwnProperty('password')) ? 'is-invalid' : '' %>" id="password" placeholder="Password" name="password" value="<%= (oldContactFormData.hasOwnProperty('password')) ? oldContactFormData.password : '' %>">
+                <% if (contactErrors.hasOwnProperty('password')) { %>
+                  <span class="invalid-feedback"><%= contactErrors.password[0].msg %></span>
+                <% } %>
+              </div>
+
+              <button type="submit" class="btn btn-success">Register</button>
+            </form>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/subscribe') %>
+
+<%- include('../partials/newsletter') %>
+
+<%- include('../partials/footer') %>

@@ -23,7 +23,7 @@ app.use(express.static('assets'));
 app.use(session({
   secret: 'yoursecret',
   resave: true,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: { maxAge: 24 * 60 * 60 * 1000 },
 }));
 
@@ -113,6 +113,14 @@ app.post('/contact', ContactSchema, (req, res) => {
       return res.redirect('/contact');
     });
   });
+});
+
+app.get('/login', (req, res) => {
+  return res.status(200).render('./auth/login');
+});
+
+app.get('/register', (req, res) => {
+  return res.status(200).render('./auth/register');
 });
 
 app.get('/categories/:category', (req, res) => {
