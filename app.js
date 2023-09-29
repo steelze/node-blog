@@ -5,6 +5,9 @@ const helmet = require('helmet');
 const session = require('express-session')
 const flash = require('connect-flash');
 const { body, validationResult } = require('express-validator');
+var passport = require('passport');
+var LocalStrategy = require('passport-local');
+
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
@@ -12,11 +15,30 @@ const ArrayPaginator = require('./utils/ArrayPaginator');
 const ContactSchema = require('./validators/schemas/ContactSchema');
 const RegisterSchema = require('./validators/schemas/RegisterSchema');
 const User = require('./Model/User');
+const LoginSchema = require('./validators/schemas/LoginSchema');
 
 const app = express();
 
+passport.use(new LocalStrategy({
+  usernameField: 'email',
+  passwordField: 'password'
+}, async function (username, password, cb) {
+  console.log(3239);
+  console.log(username, password);
+  const user = await new User().findByEmail(username);
+  if (!user) { return cb(null, false, { message: 'Incorrect username or password.' }); }
+
+  const result = await bcrypt.compare(password, user.password);
+
+  if (result) {
+    return cb(null, user);
+  } else {
+    return cb(null, false, { message: 'Incorrect username or password.' });
+  }
+}));
+
 // Use Helmet!
-app.use(helmet());
+// app.use(helmet());
 
 app.use(express.urlencoded({ extended: true }))
 
@@ -26,20 +48,47 @@ app.use(express.static('assets'));
 
 app.use(session({
   secret: 'yoursecret',
-  resave: true,
+  resave: false,
   saveUninitialized: false,
   cookie: { maxAge: 24 * 60 * 60 * 1000 },
 }));
 
+passport.serializeUser(function(user, cb) {
+  cb(null, user.email);
+});
+
+passport.deserializeUser(async function(email, cb) {
+  const user = await new User().findByEmail(email);
+  return cb(null, user);
+});
+
+app.use(passport.initialize())
+// init passport on every route call.
+app.use(passport.session())
+
 app.use(flash());
 
 app.use(function(req, res, next) {
+  res.locals.user = req.user;
   res.locals.success = req.flash('success');
   res.locals.error = req.flash('error');
   res.locals.validation_errors = req.flash('validation_errors');
   res.locals.old_validation_data = req.flash('old_validation_data');
   next();
 });
+
+const isGuest = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    return res.redirect("/profile")
+   }
+  next()
+}
+
+const isAuth = (req, res, next) => {
+  if (req.isAuthenticated()) { return next() }
+  res.redirect("/login")
+}
+
 
 const dataStorePath = './database';
 const postsDataStorePath = './database/posts.json';
@@ -79,6 +128,10 @@ app.get('/', (req, res) => {
 
 app.get('/about', (req, res) => {
   return res.status(200).render('./about');
+});
+
+app.get('/profile', isAuth, (req, res) => {
+  return res.status(200).render('./profile');
 });
 
 app.get('/contact', (req, res) => {
@@ -124,8 +177,21 @@ app.post('/contact', ContactSchema, (req, res) => {
   });
 });
 
-app.get('/login', (req, res) => {
+app.get('/login', isGuest, (req, res) => {
   return res.status(200).render('./auth/login');
+});
+
+app.post('/login', passport.authenticate('local', {
+  successRedirect: '/profile',
+  failureRedirect: '/login',
+  failureFlash: true,
+}));
+
+app.post('/logout', (req, res) => {
+  req.logout(function(err) {
+    if (err) { return next(err); }
+    res.redirect("/");
+  });
 });
 
 app.get('/register', (req, res) => {
@@ -158,6 +224,7 @@ app.post('/register', RegisterSchema, (req, res) => {
 
     const model = new User();
     const user = await model.create({
+      id: Date.now(),
       name: req.body.name,
       email: req.body.email,
       password: hash,
@@ -167,7 +234,6 @@ app.post('/register', RegisterSchema, (req, res) => {
     return res.redirect('/login');
   });
 });
-
 
 app.get('/categories/:category', (req, res) => {
   fs.readFile(postsDataStorePath, 'utf8', (err, data) => {
