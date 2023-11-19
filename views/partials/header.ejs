@@ -39,19 +39,22 @@
             </li>
             <% if (typeof user !== 'undefined' && user) { %>
               <li class="nav-item">
-                <form method="POST" action="/logout">
-                  <a class="nav-link" href="/logout" onclick="event.preventDefault(); this.closest('form').submit();">Logout</a>
+                <form method="POST" action="/auth/logout">
+                  <a class="nav-link" href="/auth/logout" onclick="event.preventDefault(); this.closest('form').submit();">Logout</a>
                 </form>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="javascript:void(0)">Hello <%= user.name %> !</a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/posts/index">My Posts</a>
+              </li>
             <% } else {  %>
               <li class="nav-item">
-                <a class="nav-link" href="/login">Login</a>
+                <a class="nav-link" href="/auth/login">Login</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/register">Register</a>
+                <a class="nav-link" href="/auth/register">Register</a>
               </li>
             <% } %>
           </ul>

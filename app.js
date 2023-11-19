@@ -6,36 +6,15 @@ const session = require('express-session')
 const flash = require('connect-flash');
 const { body, validationResult } = require('express-validator');
 var passport = require('passport');
-var LocalStrategy = require('passport-local');
 
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
+const authRoute = require('./routes/auth')
+const postRoute = require('./routes/post')
+const isAuth = require('./Middleware/isAuth');
 
 const ArrayPaginator = require('./utils/ArrayPaginator');
 const ContactSchema = require('./validators/schemas/ContactSchema');
-const RegisterSchema = require('./validators/schemas/RegisterSchema');
-const User = require('./Model/User');
-const LoginSchema = require('./validators/schemas/LoginSchema');
 
 const app = express();
-
-passport.use(new LocalStrategy({
-  usernameField: 'email',
-  passwordField: 'password'
-}, async function (username, password, cb) {
-  console.log(3239);
-  console.log(username, password);
-  const user = await new User().findByEmail(username);
-  if (!user) { return cb(null, false, { message: 'Incorrect username or password.' }); }
-
-  const result = await bcrypt.compare(password, user.password);
-
-  if (result) {
-    return cb(null, user);
-  } else {
-    return cb(null, false, { message: 'Incorrect username or password.' });
-  }
-}));
 
 // Use Helmet!
 // app.use(helmet());
@@ -53,14 +32,6 @@ app.use(session({
   cookie: { maxAge: 24 * 60 * 60 * 1000 },
 }));
 
-passport.serializeUser(function(user, cb) {
-  cb(null, user.email);
-});
-
-passport.deserializeUser(async function(email, cb) {
-  const user = await new User().findByEmail(email);
-  return cb(null, user);
-});
 
 app.use(passport.initialize())
 // init passport on every route call.
@@ -77,19 +48,6 @@ app.use(function(req, res, next) {
   next();
 });
 
-const isGuest = (req, res, next) => {
-  if (req.isAuthenticated()) {
-    return res.redirect("/profile")
-   }
-  next()
-}
-
-const isAuth = (req, res, next) => {
-  if (req.isAuthenticated()) { return next() }
-  res.redirect("/login")
-}
-
-
 const dataStorePath = './database';
 const postsDataStorePath = './database/posts.json';
 const usersDataStorePath = './database/users.json';
@@ -101,6 +59,9 @@ if (!fs.existsSync(`${dataStorePath}/contact.json`)) {
 if (!fs.existsSync(usersDataStorePath)) {
   fs.writeFileSync(usersDataStorePath, JSON.stringify([]));
 }
+
+app.use('/auth', authRoute);
+app.use('/posts', postRoute);
 
 app.get('/', (req, res) => {
   fs.readFile(postsDataStorePath, 'utf8', (err, data) => {
@@ -177,63 +138,6 @@ app.post('/contact', ContactSchema, (req, res) => {
   });
 });
 
-app.get('/login', isGuest, (req, res) => {
-  return res.status(200).render('./auth/login');
-});
-
-app.post('/login', passport.authenticate('local', {
-  successRedirect: '/profile',
-  failureRedirect: '/login',
-  failureFlash: true,
-}));
-
-app.post('/logout', (req, res) => {
-  req.logout(function(err) {
-    if (err) { return next(err); }
-    res.redirect("/");
-  });
-});
-
-app.get('/register', (req, res) => {
-  return res.status(200).render('./auth/register');
-});
-
-app.post('/register', RegisterSchema, (req, res) => {
-  const result = validationResult(req);
-  if (!result.isEmpty()) {
-    const groupedErrors = {};
-
-    for (const error of result.array()) {
-      if (!groupedErrors[error.path]) {
-        groupedErrors[error.path] = [];
-      }
-      groupedErrors[error.path].push(error);
-    }
-
-    req.flash('validation_errors', groupedErrors);
-    req.flash('old_validation_data', req.body);
-    return res.redirect('/register');
-  }
-
-
-  bcrypt.hash(req.body.password, saltRounds, async function(err, hash) {
-    if (err) {
-      console.log(err);
-      return res.status(500).json({ 'error': 'An error occured', 'data': err });
-    }
-
-    const model = new User();
-    const user = await model.create({
-      id: Date.now(),
-      name: req.body.name,
-      email: req.body.email,
-      password: hash,
-    });
-
-    req.flash('success', 'Account created successfully');
-    return res.redirect('/login');
-  });
-});
 
 app.get('/categories/:category', (req, res) => {
   fs.readFile(postsDataStorePath, 'utf8', (err, data) => {

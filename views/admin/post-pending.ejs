@@ -1,0 +1,52 @@
+<%- include('../partials/header') %>
+
+<!-- MAIN BODY -->
+<main class="main pt-4">
+  <div class="container">
+    <article class="card card-outline mb-4">
+      <div class="card-body">
+        <header class="d-flex justify-content-between mb-3">
+          <h4 class="card-title">Pending Posts</h4>
+        </header>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th width="70%">Title</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">1</th>
+              <td>Mark</td>
+              <td>
+                <button type="button" class="btn btn-primary">Approve</button>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">2</th>
+              <td>Awaiting Approval</td>
+              <td>
+                <button type="button" class="btn btn-primary">Approve</button>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">3</th>
+              <td>Published</td>
+              <td>
+                <button type="button" class="btn btn-primary">Approve</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </div>
+</main>
+
+<%- include('../partials/subscribe') %>
+
+<%- include('../partials/newsletter') %>
+
+<%- include('../partials/footer') %>

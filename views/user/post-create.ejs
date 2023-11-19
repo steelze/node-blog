@@ -1,0 +1,53 @@
+<%- include('../partials/header') %>
+
+<!-- MAIN BODY -->
+<main class="main pt-4">
+  <div class="container">
+    <article class="card card-outline mb-4">
+      <div class="card-body">
+
+        <% if (typeof success !== 'undefined' && success !== null && success.length > 0) { %>
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        <% } %>
+
+        <% if (validation_errors.length > 0) { %>
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            Ooops! Validation Error
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        <% } %>
+
+        <% const contactErrors = (validation_errors.length > 0) ? validation_errors[0] : {}; %>
+        <% const oldFormData = (old_validation_data.length > 0) ? old_validation_data[0] : {}; %>
+        <form method="POST" action="/posts/store">
+          <div class="mb-3">
+            <label class="form-label" for="name">Title</label>
+            <input type="text" class="form-control <%= (contactErrors.hasOwnProperty('title')) ? 'is-invalid' : '' %>" id="title" placeholder="Title" name="title" value="<%= (oldFormData.hasOwnProperty('title')) ? oldFormData.title : '' %>">
+            <% if (contactErrors.hasOwnProperty('title')) { %>
+              <span class="invalid-feedback"><%= contactErrors.title[0].msg %></span>
+            <% } %>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="body">Body</label>
+            <textarea type="body" class="form-control <%= (contactErrors.hasOwnProperty('body')) ? 'is-invalid' : '' %>" id="body" name="body"><%= (oldFormData.hasOwnProperty('body')) ? oldFormData.body : '' %></textarea>
+            <% if (contactErrors.hasOwnProperty('body')) { %>
+              <span class="invalid-feedback"><%= contactErrors.body[0].msg %></span>
+            <% } %>
+          </div>
+
+          <button type="submit" class="btn btn-success">Save</button>
+        </form>
+      </div>
+    </article>
+  </div>
+</main>
+
+<%- include('../partials/subscribe') %>
+
+<%- include('../partials/newsletter') %>
+
+<%- include('../partials/footer') %>
